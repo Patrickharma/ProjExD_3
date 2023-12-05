@@ -146,7 +146,33 @@ class Beam:
         self.rct.move_ip(self.vx, self.vy)
         screen.blit(self.img, self.rct)
 
+class ScoreBoard:
+    """
+    機能３：撃ち落とした爆弾の数を表示するスコアクラス
+    """
+    def __init__(self, all_bomb: int):
+        self.all_bomb = all_bomb  # Total number of bombs in the game
+        self.killed_bombs = 0  # Count of bombs that have been shot down
 
+    def count_score(self, active_bomb: int):
+        """
+        撃ち落とした爆弾の数を計算する
+        """
+        self.killed_bombs = self.all_bomb - active_bomb
+        return self.killed_bombs
+
+    def display_score(self, screen):
+        """
+        スコアを表示する
+        """
+        # 色を定義する
+        black = (0, 0, 0)
+        white = (255, 255, 255)
+        font = pg.font.Font('freesansbold.ttf', 32)  # フォントオブジェクトを作成する
+        text = font.render(f"score:{self.killed_bombs}", True, black, white)
+        textRect = text.get_rect()
+        textRect.center = (70, 50)
+        screen.blit(text, textRect)
 
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
@@ -154,6 +180,7 @@ def main():
     bg_img = pg.image.load(f"{MAIN_DIR}/fig/pg_bg.jpg")
     bird = Bird(3, (900, 400))
     bombs = [Bomb() for _ in range(NUM_OF_BOMBS)]  # BombインスタンスがNUM個並んだリスト
+    bomb_counter = ScoreBoard(NUM_OF_BOMBS)
     beam = None
 
     clock = pg.time.Clock()
@@ -189,6 +216,8 @@ def main():
             bomb.update(screen)
         if beam is not None:
             beam.update(screen)
+        bomb_counter.count_score(len(bombs))
+        bomb_counter.display_score(screen)
         pg.display.update()
         tmr += 1
         clock.tick(50)
