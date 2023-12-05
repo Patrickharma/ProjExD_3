@@ -166,7 +166,8 @@ class ScoreBoard:
     def __init__(self, all_bomb: int):
         self.all_bomb = all_bomb  # Total number of bombs in the game
         self.killed_bombs = 0  # Count of bombs that have been shot down
-
+        self.font = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)  # フォントオブジェクトを作成する
+        self.text_color = (0, 0, 255)
     def count_score(self, active_bomb: int):
         """
         撃ち落とした爆弾の数を計算する
@@ -181,8 +182,7 @@ class ScoreBoard:
         # 色を定義する
         black = (0, 0, 0)
         white = (255, 255, 255)
-        font = pg.font.Font('freesansbold.ttf', 32)  # フォントオブジェクトを作成する
-        text = font.render(f"score:{self.killed_bombs}", True, black, white)
+        text = self.font.render(f"score:{self.killed_bombs}", True, self.text_color)
         textRect = text.get_rect()
         textRect.center = (70, 50)
         screen.blit(text, textRect)
