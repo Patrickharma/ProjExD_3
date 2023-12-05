@@ -146,6 +146,7 @@ class Beam:
         self.rct.move_ip(self.vx, self.vy)
         screen.blit(self.img, self.rct)
 
+
 class ScoreBoard:
     """
     機能３：撃ち落とした爆弾の数を表示するスコアクラス
@@ -161,7 +162,7 @@ class ScoreBoard:
         self.killed_bombs = self.all_bomb - active_bomb
         return self.killed_bombs
 
-    def display_score(self, screen):
+    def display_score(self, screen: pg.Surface):
         """
         スコアを表示する
         """
@@ -174,6 +175,29 @@ class ScoreBoard:
         textRect.center = (70, 50)
         screen.blit(text, textRect)
 
+
+class BombEffect:
+    """
+    機能１：爆弾撃ち落とした時の爆発エフェクトクラス
+    """
+    def __init__(self, bomb: Bomb, duration=3000):
+        self.bomb = bomb
+        self.img = pg.image.load(f"{MAIN_DIR}/fig/explosion.gif")
+        self.rct = self.img.get_rect()
+        self.rct.centery = bomb.rct.centery
+        self.rct.centerx = bomb.rct.centerx
+        self.duration = duration
+        self.start_time = pg.time.get_ticks()
+        
+    def boom_effect(self, screen):
+        current_time = pg.time.get_ticks()
+        if current_time -self.start_time < self.duration:
+            screen.blit(self.img, self.rct)
+            return True
+        else:
+            return False
+
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -182,6 +206,7 @@ def main():
     bombs = [Bomb() for _ in range(NUM_OF_BOMBS)]  # BombインスタンスがNUM個並んだリスト
     bomb_counter = ScoreBoard(NUM_OF_BOMBS)
     beam = None
+    bomb_effects = []
 
     clock = pg.time.Clock()
     tmr = 0
@@ -207,6 +232,10 @@ def main():
                 beam = None
                 bombs[i] = None
                 bird.change_img(6, screen)
+                bomb_effect = BombEffect(bomb)
+                bomb_effects.append(bomb_effect)
+                
+
         # Noneでない爆弾だけのリストを作る
         bombs = [bomb for bomb in bombs if bomb is not None]
 
@@ -218,6 +247,8 @@ def main():
             beam.update(screen)
         bomb_counter.count_score(len(bombs))
         bomb_counter.display_score(screen)
+        
+        bomb_effects = [effect for effect  in bomb_effects if effect.boom_effect(screen)]
         pg.display.update()
         tmr += 1
         clock.tick(50)
